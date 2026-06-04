@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launching App...</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px 20px; background: #f4f4f9; color: #333; }
+        .box { max-width: 400px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        h2 { margin-top: 0; color: #111; }
+        .btn { display: inline-block; padding: 14px 28px; background: #0070f3; color: white; text-decoration: none; border-radius: 7px; margin-top: 20px; font-weight: 600; box-shadow: 0 4px 14px rgba(0,112,243,0.3); transition: background 0.2s; }
+        .btn:hover { background: #0061d5; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2 id="title">Opening App...</h2>
+    <p id="status-msg">Detecting your browser environment and redirecting you to Chrome or Safari for full audio and video camera access...</p>
+    <a href="/api/ios-breakout" id="manual-btn" class="btn hidden">Launch App Natively</a>
+</div>
+
+<script>
+(function() {
+    // 1. DYNAMIC DOMAIN RESOLUTION
+    // This automatically detects your current Vercel URL so you don't have to hardcode it.
+    const currentDomain = window.location.origin;
+
+    // 2. ENVIRONMENT DETECTION
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isFacebook = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("FB_IAB") > -1) || (ua.indexOf("Messenger") > -1);
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+    // 3. ROUTING LOGIC
+    if (isFacebook) {
+        if (isAndroid) {
+            // Android Bypass: Format intent string targeting Chrome
+            const cleanUrl = currentDomain.replace(/^https?:\/\//, "");
+            const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+
+            // Instantly execute breakout
+            window.location.href = intentUrl;
+
+            // Fallback instruction text if Chrome isn't the system default
+            setTimeout(() => {
+                document.getElementById('title').innerText = "Action Required";
+                document.getElementById('status-msg').innerText = "Please tap the 3 dots in the top-right corner and choose 'Open in Browser'.";
+            }, 1500);
+
+        } else if (isIOS) {
+            // iOS Bypass: Facebook blocks auto-downloads, requiring a user click to trigger the Safari handoff
+            document.getElementById('title').innerText = "Unsupported Browser";
+            document.getElementById('status-msg').innerHTML = "The Facebook app blocks native camera and microphone features. <br><br>Tap below to automatically launch your native <strong>Safari</strong> browser.";
+
+            const btn = document.getElementById('manual-btn');
+            btn.classList.remove('hidden');
+        } else {
+            // Generic Facebook browser fallback (e.g., Desktop Facebook sandbox if applicable)
+            showRegularApp();
+        }
+    } else {
+        // Not inside Facebook! Continue into your standard SPA setup
+        showRegularApp();
+    }
+
+    function showRegularApp() {
+        document.getElementById('title').innerText = "Welcome!";
+        document.getElementById('status-msg').innerHTML = "<strong>[Success]</strong> You are in a native browser. Your low-level WebAudio and Video Camera APIs will now initialize normally.";
+        // NOTE: In your real project, your Single Page App bundle/scripts would mount and run here.
+    }
+})();
+</script>
+
+</body>
+</html>

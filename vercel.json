@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/ios-breakout",
+      "destination": "/api/api/ios-breakout.js"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
