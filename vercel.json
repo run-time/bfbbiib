@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/ios-breakout",
-      "destination": "/api/api/ios-breakout.js"
+      "destination": "/api/ios-breakout.js"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
