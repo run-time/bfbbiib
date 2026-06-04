@@ -1,15 +1,12 @@
 export default function handler(req, res) {
-  // Clear out file attachment headers to stop triggering the "Page Not Found" screen
   res.removeHeader('Content-Disposition');
-  
-  // Set content type to standard HTML so Facebook reads it normally
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-  // Hardcode your production SPA link
+  // Hardcoded production URL
   const targetUrl = "https://vercel.app";
 
-  // We convert your target URL into an unparseable protocol schema
-  const protocolUrl = targetUrl.replace(/^https?:\/\//, "ftp://");
+  // Convert the URL to the iOS Google Chrome system scheme
+  const chromeProtocolUrl = targetUrl.replace(/^https?:\/\//, "googlechrome://");
 
   const htmlPayload = `<!DOCTYPE html>
 <html>
@@ -28,13 +25,13 @@ export default function handler(req, res) {
     <p>Launching native environment...</p>
     
     <script>
-        // Trigger the system protocol breakout
-        window.location.href = "${protocolUrl}";
+        // 1. Force the system to offer an external application handoff
+        window.location.href = "${chromeProtocolUrl}";
 
-        // If the user remains on screen, fallback redirect to let them tap out manually
+        // 2. Safe Fallback: If Chrome isn't present, this timer ensures Safari opens the https link instead
         setTimeout(function() {
             window.location.replace("${targetUrl}");
-        }, 1500);
+        }, 800);
     </script>
 </body>
 </html>`;
